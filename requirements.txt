@@ -1,0 +1,3 @@
+falcon==0.3.0
+pytz==2015.7
+riemann-client==6.1.3
