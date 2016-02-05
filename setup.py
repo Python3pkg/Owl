@@ -5,16 +5,17 @@ from setuptools import find_packages
 
 
 setup(
-    name="Pigeon",
+    name="Owl",
     version="0.0.1",
     license="GPLv2",
     description="Monitor Falcon with Riemann",
-    url="https://github.com/merry-bits/Pigeon",
+    url="https://github.com/merry-bits/Owl",
     classifiers=[
         "Framework :: Falcon",
         "Intended Audience :: Developers",
         "License :: OSI Approved :: GNU General Public License v2 (GPLv2)",
         "Topic :: System :: Monitoring",
+        "Programming Language :: Python :: 2.7",
         "Programming Language :: Python :: 3.4",
     ],
     keywords="flacon riemann monitoring measure call end-point duration",

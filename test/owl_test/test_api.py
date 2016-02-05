@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-from threading import Event
+from time import sleep
 from unittest.mock import patch
 
 from falcon import API
@@ -8,10 +8,10 @@ from falcon.testing.resource import TestResource
 from riemann_client.client import QueuedClient
 from riemann_client.transport import UDPTransport
 
-from pigeon import Pigeon, api
+from owl import Owl, api
 
 
-class _MonitoredAPI(Pigeon, API):
+class _MonitoredAPI(Owl, API):
 
     pass
 
@@ -50,11 +50,14 @@ class TestAPI(TestBase):
         self.client = _Client()
         self.api = _MonitoredAPI(get_riemann_client=lambda: self.client)
         self.api.add_route("/", TestResource())
-        self.done_event = Event()
 
-    def _process_call_metrics(self):
-        Pigeon._process_call_metrics(self.api)
-        self.done_event.set()
+    def _wait_for_clear(self):
+        for _ in range(100):  # wait a maximum of hundred times
+            if self.api._call_events.qsize():
+                sleep(0.01)  # not processed, wait
+            else:
+                return True  # event was taken care of
+        return False
 
     @patch.object(api, "_SEND_LIMIT", 0)  # never group event calls
     def test_monitor_called(self):
@@ -63,11 +66,8 @@ class TestAPI(TestBase):
         """
         with patch.object(self.client, "event") as event_call:
             with patch.object(self.client, "flush") as flush_call:
-                with patch.object(
-                        self.api, "_process_call_metrics",
-                        self._process_call_metrics):
-                    _wsgi_read(self.simulate_request("/"))
-                    self.assertTrue(self.done_event.wait(1))  # wait for worker
+                _wsgi_read(self.simulate_request("/"))
+                self.assertTrue(self._wait_for_clear())  # wait for worker
         self.assertEqual(self.srmock.status[:3], "200")
         self.assertTrue(event_call.called)
         self.assertTrue(flush_call.called)
@@ -78,13 +78,10 @@ class TestAPI(TestBase):
         been called.
         """
         with patch.object(
-                self.api, "_process_call_metrics",
-                self._process_call_metrics):
-            with patch.object(
-                    self.api, "_get_riemann_client",
-                    lambda: QueuedClient(UDPTransport("10.10.10.90"))):
-                _wsgi_read(self.simulate_request("/"))
-                self.assertTrue(self.done_event.wait(1))  # wait for worker
+                self.api, "_get_riemann_client",
+                lambda: QueuedClient(UDPTransport("10.10.10.90"))):
+            _wsgi_read(self.simulate_request("/"))
+            self.assertTrue(self._wait_for_clear())  # wait for worker
         self.assertEqual(self.srmock.status[:3], "200")
 
     @patch.object(api, "_SEND_LIMIT", 0)  # never group event calls
@@ -93,11 +90,8 @@ class TestAPI(TestBase):
         been called.
         """
         with patch.object(
-                self.api, "_process_call_metrics",
-                self._process_call_metrics):
-            with patch.object(
-                    self.api, "_get_riemann_client",
-                    lambda: QueuedClient(UDPTransport("10.10.10.90"))):
-                _wsgi_read(self.simulate_request("/", method="POST"))
-                self.assertTrue(self.done_event.wait(1))  # wait for worker
+                self.api, "_get_riemann_client",
+                lambda: QueuedClient(UDPTransport("10.10.10.90"))):
+            _wsgi_read(self.simulate_request("/", method="POST"))
+            self.assertTrue(self._wait_for_clear())  # wait for worker
         self.assertEqual(self.srmock.status[:3], "405")
