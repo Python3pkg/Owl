@@ -21,7 +21,6 @@ setup(
     packages=find_packages("src"),
     package_dir = {"": "src"},
     install_requires=["pytz", "riemann-client>=6.1.3"],
-    package_dir={"pigeon": "src/pigeon"},
     extras_require={
         "falcon": ["falcon>=0.3.0"],
     },
