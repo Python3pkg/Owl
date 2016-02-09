@@ -25,6 +25,7 @@ class Owl(object):
     """ Send call reports to Riemann. """
 
     def __init__(self, *args, **kwds):
+        _LOG.debug("Owl in place.")
         self._get_riemann_client = kwds.pop("get_riemann_client")
         self._service = kwds.pop("service")
         self._events_host = kwds.pop("host", gethostname())
@@ -36,28 +37,35 @@ class Owl(object):
         event_worker.start()
 
     def _process_call_metrics(self):
-        last_send = datetime.now() - _MAX_SEND_INTERVALL  # first is immediate
-        events = []  # buffer for events that should get send
-        while True:  # daemon thread, terminates automatically on exit
-            events.append(self._call_events.get())  # wait for new event
-            # Don't spam Riemann, send blocks of events or wait for some time.
-            if (len(events) >= _SEND_LIMIT or
-                    last_send < datetime.now() - _MAX_SEND_INTERVALL):
-                with self._get_riemann_client() as client:
-                    # Prepare events for sending.
-                    for event in events:
+        _LOG.debug("Owl worker running.")
+        try:
+            last_send = (
+                datetime.now() - _MAX_SEND_INTERVALL)  # first is immediate
+            events = []  # buffer for events that should get send
+            while True:  # daemon thread, terminates automatically on exit
+                events.append(self._call_events.get())  # wait for new event
+                # Don't spam Riemann, send blocks of events or wait for some
+                # time.
+                if (len(events) >= _SEND_LIMIT or
+                        last_send < datetime.now() - _MAX_SEND_INTERVALL):
+                    with self._get_riemann_client() as client:
+                        # Prepare events for sending.
+                        for event in events:
+                            try:
+                                client.event(**event)
+                                _LOG.debug("Monitor: %s", event)
+                            except Exception:
+                                pass  # drop event, no connection
+                        # Send and clear buffer.
                         try:
-                            client.event(**event)
-                            _LOG.debug("Monitor: %s", event)
+                            client.flush()
+                            _LOG.debug("Monitor: sent")
                         except Exception:
-                            pass  # drop event, no connection
-                    # Send and clear buffer.
-                    try:
-                        client.flush()
-                        _LOG.debug("Monitor: sent")
-                    except Exception:
-                        pass  # ignore, events lost
-                    del events[:]
+                            pass  # ignore, events lost
+                        del events[:]
+        except Exception:
+            _LOG.exception("Owl worker crashed.")
+            raise
 
     def _monitor_end_call(self, env, start, url, status):
         _LOG.debug("Monitor: request done")
