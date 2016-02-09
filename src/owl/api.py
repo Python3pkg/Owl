@@ -53,15 +53,19 @@ class Owl(object):
                         # Prepare events for sending.
                         for event in events:
                             try:
+                                _LOG.debug("Monitor: add event.")
                                 client.event(**event)
                                 _LOG.debug("Monitor: %s", event)
                             except Exception:
+                                _LOG.exception("Add event failed.")
                                 pass  # drop event, no connection
                         # Send and clear buffer.
                         try:
+                            _LOG.debug("Monitor: flush...")
                             client.flush()
                             _LOG.debug("Monitor: sent")
                         except Exception:
+                            _LOG.exception("Flush events failed.")
                             pass  # ignore, events lost
                         del events[:]
         except Exception:
