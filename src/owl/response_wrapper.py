@@ -1,4 +1,26 @@
 # -*- coding: utf-8 -*-
+from urllib.parse import quote
+
+
+def _reconstruct_endpoint(env):
+    """
+    :type env: {}
+    :rtype: str
+    """
+    url = (
+        env.get("REQUEST_METHOD", "--") + " " + env["wsgi.url_scheme"] + "://")
+    if env.get("HTTP_HOST"):
+        url += env["HTTP_HOST"]
+    else:
+        url += env["SERVER_NAME"]
+        if env["wsgi.url_scheme"] == "https":
+            if env["SERVER_PORT"] != "443":
+                url += ":" + env["SERVER_PORT"]
+        else:
+            if env["SERVER_PORT"] != "80":
+                url += ":" + env["SERVER_PORT"]
+    url += quote(env.get("SCRIPT_NAME", ""))
+    return url + quote(env.get("PATH_INFO", ""))
 
 
 class IterableWrapper():
@@ -34,14 +56,10 @@ class IterableWrapper():
         try:
             return self._iter.__next__()
         except StopIteration:
+            env = self._env  # shortcut
             # Build the request URL and call the end call back function.
-            if self._env is not None and self._end_cb is not None:
-                url = "{} {}://{}{}".format(
-                    self._env.get("REQUEST_METHOD", "--"),
-                    self._env.get("wsgi.url_scheme", "--"),
-                    self._env.get("SERVER_NAME", "--"),
-                    self._env.get("PATH_INFO"))
-                self._end_cb(self._env, self._start, url)
+            if env is not None and self._end_cb is not None:
+                self._end_cb(env, self._start, _reconstruct_endpoint(env))
             # Prevent memory leaks, clean out stuff which isn't needed anymore.
             self._end_cb = None
             self._env = None

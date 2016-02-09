@@ -26,9 +26,9 @@ class Owl(object):
 
     def __init__(self, *args, **kwds):
         _LOG.debug("Owl in place.")
-        self._get_riemann_client = kwds.pop("get_riemann_client")
-        self._service = kwds.pop("service")
-        self._events_host = kwds.pop("host", gethostname())
+        self._get_riemann_client = kwds.pop("owl_get_riemann_client")
+        self._service = kwds.pop("owl_service")
+        self._events_host = kwds.pop("owl_host", gethostname())
         self._call_events = Queue(1000)
         super(Owl, self).__init__(*args, **kwds)
         # Create and start background thread that sends events to Riemann.
@@ -69,15 +69,14 @@ class Owl(object):
             _LOG.exception("Owl crashed.")
             raise
 
-    def _monitor_end_call(self, env, start, url, status):
+    def _monitor_end_call(self, env, start, endpoint, status):
         end = time()
         event = {
             "time": timegm(datetime.utcnow().replace(tzinfo=UTC).timetuple()),
             "host": self._events_host,
             "service": self._service,
-            "state": status,
             "metric_sint64": int(round((end - start) * 1000)),
-            "tags": [url]
+            "tags": [endpoint, status]
         }
         try:
             self._call_events.put_nowait(event)
