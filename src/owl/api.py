@@ -16,7 +16,7 @@ _LOG = getLogger(__name__)
 
 _CALLS_BUFFER_LIMIT = 1000
 
-_SEND_LIMIT = 1
+_SEND_LIMIT = 5
 
 _MAX_SEND_INTERVALL = timedelta(seconds=5)
 
@@ -37,14 +37,13 @@ class Owl(object):
         event_worker.start()
 
     def _process_call_metrics(self):
-        _LOG.debug("Owl worker running.")
+        _LOG.debug("Owl flying.")
         try:
             last_send = (
                 datetime.now() - _MAX_SEND_INTERVALL)  # first is immediate
             events = []  # buffer for events that should get send
             while True:  # daemon thread, terminates automatically on exit
                 events.append(self._call_events.get())  # wait for new event
-                _LOG.debug("Got event from queue %s", events[-1])
                 # Don't spam Riemann, send blocks of events or wait for some
                 # time.
                 if (len(events) >= _SEND_LIMIT or
@@ -53,27 +52,24 @@ class Owl(object):
                         # Prepare events for sending.
                         for event in events:
                             try:
-                                _LOG.debug("Monitor: add event.")
                                 client.event(**event)
-                                _LOG.debug("Monitor: %s", event)
                             except Exception:
-                                _LOG.exception("Add event failed.")
-                                pass  # drop event, no connection
+                                # Just log, drop event, no connection
+                                _LOG.warning(
+                                    "Add event failed.", exc_info=True)
                         # Send and clear buffer.
                         try:
-                            _LOG.debug("Monitor: flush...")
                             client.flush()
                             _LOG.debug("Monitor: sent")
                         except Exception:
-                            _LOG.exception("Flush events failed.")
-                            pass  # ignore, events lost
+                            # Just log, ignore, events lost.
+                            _LOG.warning("Flush events failed.", exc_info=True)
                         del events[:]
         except Exception:
-            _LOG.exception("Owl worker crashed.")
+            _LOG.exception("Owl crashed.")
             raise
 
     def _monitor_end_call(self, env, start, url, status):
-        _LOG.debug("Monitor: request done")
         end = time()
         event = {
             "time": timegm(datetime.utcnow().replace(tzinfo=UTC).timetuple()),
