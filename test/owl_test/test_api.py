@@ -48,7 +48,8 @@ class TestAPI(TestBase):
     def setUp(self):
         super().setUp()
         self.client = _Client()
-        self.api = _MonitoredAPI(get_riemann_client=lambda: self.client)
+        self.api = _MonitoredAPI(
+            get_riemann_client=lambda: self.client, service="")
         self.api.add_route("/", TestResource())
 
     def _wait_for_clear(self):

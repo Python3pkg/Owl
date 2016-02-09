@@ -23,6 +23,7 @@ class Owl(object):
 
     def __init__(self, *args, **kwds):
         self._get_riemann_client = kwds.pop("get_riemann_client")
+        self._service = kwds.pop("service")
         self._events_host = kwds.pop("host", gethostname())
         self._call_events = Queue(1000)
         super(Owl, self).__init__(*args, **kwds)
@@ -58,10 +59,10 @@ class Owl(object):
         event = {
             "time": timegm(datetime.utcnow().replace(tzinfo=UTC).timetuple()),
             "host": self._events_host,
-            "service": url,
+            "service": self._service,
             "state": status,
             "metric_sint64": int(round((end - start) * 1000)),
-            "tags": ["total"]
+            "tags": [url]
         }
         try:
             self._call_events.put_nowait(event)
