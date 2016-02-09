@@ -7,20 +7,10 @@ def _reconstruct_endpoint(env):
     :type env: {}
     :rtype: str
     """
-    url = (
-        env.get("REQUEST_METHOD", "--") + " " + env["wsgi.url_scheme"] + "://")
-    if env.get("HTTP_HOST"):
-        url += env["HTTP_HOST"]
-    else:
-        url += env["SERVER_NAME"]
-        if env["wsgi.url_scheme"] == "https":
-            if env["SERVER_PORT"] != "443":
-                url += ":" + env["SERVER_PORT"]
-        else:
-            if env["SERVER_PORT"] != "80":
-                url += ":" + env["SERVER_PORT"]
-    url += quote(env.get("SCRIPT_NAME", ""))
-    return url + quote(env.get("PATH_INFO", ""))
+    return (
+        env.get("REQUEST_METHOD", "--") + " " +
+        quote(env.get("SCRIPT_NAME", "")) +
+        quote(env.get("PATH_INFO", "")))
 
 
 class IterableWrapper():
