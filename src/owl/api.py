@@ -81,7 +81,7 @@ class Owl(object):
             "service": self._service,
             "state": status,
             "metric_sint64": int(round((end - start) * 1000)),
-            "url": url
+            "tags": [url]
         }
         try:
             self._call_events.put_nowait(event)
