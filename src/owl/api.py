@@ -16,7 +16,7 @@ _LOG = getLogger(__name__)
 
 _CALLS_BUFFER_LIMIT = 1000
 
-_SEND_LIMIT = 5
+_SEND_LIMIT = 1
 
 _MAX_SEND_INTERVALL = timedelta(seconds=5)
 
@@ -44,6 +44,7 @@ class Owl(object):
             events = []  # buffer for events that should get send
             while True:  # daemon thread, terminates automatically on exit
                 events.append(self._call_events.get())  # wait for new event
+                _LOG.debug("Got event from queue %s", events[-1])
                 # Don't spam Riemann, send blocks of events or wait for some
                 # time.
                 if (len(events) >= _SEND_LIMIT or
