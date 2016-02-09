@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 from calendar import timegm
 from datetime import datetime, timedelta
+from logging import getLogger
 from queue import Queue, Full
 from socket import gethostname
 from threading import Thread
@@ -10,6 +11,8 @@ from pytz import UTC
 
 from .response_wrapper import IterableWrapper
 
+
+_LOG = getLogger(__name__)
 
 _CALLS_BUFFER_LIMIT = 1000
 
@@ -45,16 +48,19 @@ class Owl(object):
                     for event in events:
                         try:
                             client.event(**event)
+                            _LOG.debug("Monitor: %s", event)
                         except Exception:
                             pass  # drop event, no connection
                     # Send and clear buffer.
                     try:
                         client.flush()
+                        _LOG.debug("Monitor: sent")
                     except Exception:
                         pass  # ignore, events lost
                     del events[:]
 
     def _monitor_end_call(self, env, start, url, status):
+        _LOG.debug("Monitor: request done")
         end = time()
         event = {
             "time": timegm(datetime.utcnow().replace(tzinfo=UTC).timetuple()),
