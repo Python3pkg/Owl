@@ -46,10 +46,10 @@ def _wsgi_read(result):
 class TestAPI(TestBase):
 
     def setUp(self):
-        super().setUp()
+        super(TestAPI, self).setUp()
         self.client = _Client()
         self.api = _MonitoredAPI(
-            owl_get_riemann_client=lambda: self.client, owl_service="")
+            get_riemann_client=lambda: self.client, owl_service="")
         self.api.add_route("/", TestResource())
 
     def _wait_for_clear(self):
