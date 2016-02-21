@@ -26,7 +26,9 @@ setup(
         "Natural Language :: English",
         "License :: OSI Approved :: GNU General Public License v2 (GPLv2)",
         "Programming Language :: Python :: 2.7",
+        "Programming Language :: Python :: 3.3",
         "Programming Language :: Python :: 3.4",
+        "Programming Language :: Python :: 3.5",
     ],
     keywords=(
         "flacon riemann monitoring measure request time end-point duration"),
@@ -34,7 +36,8 @@ setup(
     package_dir = {"": "src"},
     install_requires=["pytz"],
     extras_require={
-        "falcon": ["falcon==0.3.0"],
-        "riemann-client": ["riemann-client==6.1.3"],
+        "test": [
+            "falcon==0.3.0", "riemann-client==6.1.3", "mock==1.3.0",
+            "nose==1.3.7"],
     },
 )

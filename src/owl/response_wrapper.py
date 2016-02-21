@@ -32,7 +32,7 @@ class IterableWrapper():
         if self._iter is None:
             raise StopIteration()
         try:
-            return self._iter.__next__()
+            return next(self._iter)
         except StopIteration:
             # Build the request URL and call the end call back function.
             if self._end_cb is not None:
@@ -45,3 +45,6 @@ class IterableWrapper():
             self._end_cb = None
             self._iter = None
             raise  # continue with end of iteration
+
+    def next(self):  # Python 2
+        return self.__next__()
