@@ -45,3 +45,6 @@ class IterableWrapper():
             self._end_cb = None
             self._iter = None
             raise  # continue with end of iteration
+
+    def next(self):  # Python 2
+        return self.__next__()
