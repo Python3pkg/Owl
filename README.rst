@@ -1,6 +1,9 @@
 Owl
 ===
 
+.. image:: https://api.travis-ci.org/merry-bits/Owl.svg?branch=master
+    :target: https://travis-ci.org/merry-bits/Owl?branch=master
+
 Measure how long your `Falcon <http://falconframework.org/>`_ requests take and
 send each measurement as an event to `Riemann <http://riemann.io/>`_.
 
@@ -55,7 +58,7 @@ Riemann InfluxDB configuration:
          (comp api-db parse-api-event))))
 
 Check out the ``event_builder`` parameter if you want to customize the event
-parameters (change what service means or add a description for example). 
+parameters (change what service means or add a description for example).
 
 
 Installation
