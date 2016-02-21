@@ -2,7 +2,10 @@
 from calendar import timegm
 from datetime import datetime, timedelta
 from logging import getLogger
-from queue import Queue, Full
+try:
+    from queue import Queue, Full
+except ImportError:
+    from Queue import Queue, Full  # Python 2
 from socket import gethostname
 from threading import Thread
 from time import time
