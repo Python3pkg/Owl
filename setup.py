@@ -34,7 +34,6 @@ setup(
     package_dir = {"": "src"},
     install_requires=["pytz"],
     extras_require={
-        "falcon": ["falcon==0.3.0"],
-        "riemann-client": ["riemann-client==6.1.3"],
+        "test": ["falcon==0.3.0", "riemann-client==6.1.3"],
     },
 )
