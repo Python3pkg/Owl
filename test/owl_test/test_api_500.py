@@ -1,11 +1,14 @@
 # -*- coding: utf-8 -*-
-from falcon.testing import TestResource, TestBase
-from falcon import API
 from time import sleep
+try:
+    from unittest.mock import patch
+except ImportError:
+    from mock import patch
 
+from falcon import API
+from falcon.testing import TestResource, TestBase
 
 from owl import Owl, api
-from unittest.mock import patch
 
 
 class _MonitoredAPI(Owl, API):
