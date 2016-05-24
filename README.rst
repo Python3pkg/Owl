@@ -72,7 +72,7 @@ Installation
 Changelog
 =========
 
-0.1.0
+0.2.0
 -----
 
  - generate a message with status 500 when a request throws an exception
