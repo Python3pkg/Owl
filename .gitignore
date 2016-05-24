@@ -25,3 +25,6 @@ coverage.xml
 .pydevproject
 .settings/
 
+src/Owl.egg-info/
+dist/
+build/
