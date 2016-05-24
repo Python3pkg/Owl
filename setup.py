@@ -33,11 +33,12 @@ setup(
     keywords=(
         "flacon riemann monitoring measure request time end-point duration"),
     packages=find_packages("src"),
-    package_dir = {"": "src"},
+    package_dir={"": "src"},
     install_requires=["pytz"],
     extras_require={
         "test": [
-            "falcon==0.3.0", "riemann-client==6.1.3", "mock==1.3.0",
-            "nose==1.3.7"],
+            "falcon==1.0.0", "riemann-client==6.3.0", "mock==1.3.0",
+            "nose==1.3.7"
+        ]
     },
 )

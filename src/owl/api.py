@@ -218,5 +218,16 @@ class Owl(object):
         # Wrap the result of the request, so that when all the data was
         # consumed by the WSGI server the request "ends" and the end time gets
         # taken then and not before.
-        response = super(Owl, self).__call__(env, _start_response)
-        return IterableWrapper(response, call_back)
+        try:
+            response = super(Owl, self).__call__(env, _start_response)
+            return IterableWrapper(response, call_back)
+        except Exception:
+            # Server error, make sure callback is called.
+            if not str(status_recorder[0] or "").startswith("5"):
+                status_recorder[0] = "500"
+            try:
+                call_back()
+            except Exception:
+                # Just log and ignore.
+                _LOG.exception("End callback crashed.")
+            raise
