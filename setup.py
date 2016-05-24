@@ -12,7 +12,7 @@ with open(path.join(here, "README.rst"), encoding="utf-8") as f:
 
 setup(
     name="Owl",
-    version="0.1.0",
+    version="0.2.0",
     license="GPLv2",
     description="Monitor Falcon with Riemann",
     long_description=long_description,
