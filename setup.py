@@ -12,7 +12,7 @@ with open(path.join(here, "README.rst"), encoding="utf-8") as f:
 
 setup(
     name="Owl",
-    version="0.0.1",
+    version="0.1.0",
     license="GPLv2",
     description="Monitor Falcon with Riemann",
     long_description=long_description,
@@ -34,7 +34,7 @@ setup(
     package_dir = {"": "src"},
     install_requires=["pytz"],
     extras_require={
-        "falcon": ["falcon==0.3.0"],
-        "riemann-client": ["riemann-client==6.1.3"],
+        "falcon": ["falcon==1.0.0"],
+        "riemann-client": ["riemann-client==6.3.0"],
     },
 )
