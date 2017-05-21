@@ -5,14 +5,14 @@ from logging import getLogger
 try:
     from queue import Queue, Full
 except ImportError:
-    from Queue import Queue, Full  # Python 2
+    from queue import Queue, Full  # Python 2
 from socket import gethostname
 from threading import Thread
 from time import time
 try:
     from urllib.parse import quote  # @UnusedImport
 except ImportError:
-    from urllib import quote  # Python 2 @UnresolvedImport @Reimport
+    from urllib.parse import quote  # Python 2 @UnresolvedImport @Reimport
 
 from pytz import UTC
 
